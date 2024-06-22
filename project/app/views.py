@@ -390,45 +390,45 @@ def customer_address_view(request):
 # here we are just directing to this view...actually we have to check whther payment is successful or not
 #then only this view should be accessed
 @login_required(login_url='customerlogin')
-def payment_success_view(request):
-    # Here we will place order | after successful payment
-    # we will fetch customer  mobile, address, Email
-    # we will fetch product id from cookies then respective details from db
-    # then we will create order objects and store in db
-    # after that we will delete cookies because after order placed...cart should be empty
-    customer=models.Customer.objects.get(user_id=request.user.id)
-    products=None
-    email=None
-    mobile=None
-    address=None
-    if 'product_ids' in request.COOKIES:
-        product_ids = request.COOKIES['product_ids']
-        if product_ids != "":
-            product_id_in_cart=product_ids.split('|')
-            products=models.Product.objects.all().filter(id__in = product_id_in_cart)
-            # Here we get products list that will be ordered by one customer at a time
+# def payment_success_view(request):
+#     # Here we will place order | after successful payment
+#     # we will fetch customer  mobile, address, Email
+#     # we will fetch product id from cookies then respective details from db
+#     # then we will create order objects and store in db
+#     # after that we will delete cookies because after order placed...cart should be empty
+#     customer=models.Customer.objects.get(user_id=request.user.id)
+#     products=None
+#     email=None
+#     mobile=None
+#     address=None
+#     if 'product_ids' in request.COOKIES:
+#         product_ids = request.COOKIES['product_ids']
+#         if product_ids != "":
+#             product_id_in_cart=product_ids.split('|')
+#             products=models.Product.objects.all().filter(id__in = product_id_in_cart)
+#             # Here we get products list that will be ordered by one customer at a time
 
-    # these things can be change so accessing at the time of order...
-    if 'email' in request.COOKIES:
-        email=request.COOKIES['email']
-    if 'mobile' in request.COOKIES:
-        mobile=request.COOKIES['mobile']
-    if 'address' in request.COOKIES:
-        address=request.COOKIES['address']
+#     # these things can be change so accessing at the time of order...
+#     if 'email' in request.COOKIES:
+#         email=request.COOKIES['email']
+#     if 'mobile' in request.COOKIES:
+#         mobile=request.COOKIES['mobile']
+#     if 'address' in request.COOKIES:
+#         address=request.COOKIES['address']
 
-    # here we are placing number of orders as much there is a products
-    # suppose if we have 5 items in cart and we place order....so 5 rows will be created in orders table
-    # there will be lot of redundant data in orders table...but its bappe more complicated if we normalize it
-    for product in products:
-        models.Orders.objects.get_or_create(customer=customer,product=product,status='Pending',email=email,mobile=mobile,address=address)
+#     # here we are placing number of orders as much there is a products
+#     # suppose if we have 5 items in cart and we place order....so 5 rows will be created in orders table
+#     # there will be lot of redundant data in orders table...but its bappe more complicated if we normalize it
+#     for product in products:
+#         models.Orders.objects.get_or_create(customer=customer,product=product,status='Pending',email=email,mobile=mobile,address=address)
 
-    # after order placed cookies should be deleted
-    response = render(request,'app/payment_success.html')
-    response.delete_cookie('product_ids')
-    response.delete_cookie('email')
-    response.delete_cookie('mobile')
-    response.delete_cookie('address')
-    return response
+#     # after order placed cookies should be deleted
+#     response = render(request,'app/payment_success.html')
+#     response.delete_cookie('product_ids')
+#     response.delete_cookie('email')
+#     response.delete_cookie('mobile')
+#     response.delete_cookie('address')
+#     return response
 
 
 
@@ -451,43 +451,43 @@ def my_order_view(request):
 
 
 #--------------for discharge patient bill (pdf) download and printing
-# import io
-# from xhtml2pdf import pisa
-# from django.template.loader import get_template
-# from django.template import Context
-# from django.http import HttpResponse
+import io
+from xhtml2pdf import pisa
+from django.template.loader import get_template
+from django.template import Context
+from django.http import HttpResponse
 
 
-# def render_to_pdf(template_src, context_dict):
-#     template = get_template(template_src)
-#     html  = template.render(context_dict)
-#     result = io.BytesIO()
-#     pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-1")), result)
-#     if not pdf.err:
-#         return HttpResponse(result.getvalue(), content_type='application/pdf')
-#     return
+def render_to_pdf(template_src, context_dict):
+    template = get_template(template_src)
+    html  = template.render(context_dict)
+    result = io.BytesIO()
+    pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-1")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return
 
-# @login_required(login_url='customerlogin')
-# @user_passes_test(is_customer)
-# def download_invoice_view(request,orderID,productID):
-#     order=models.Orders.objects.get(id=orderID)
-#     product=models.Product.objects.get(id=productID)
-#     mydict={
-#         'orderDate':order.order_date,
-#         'customerName':request.user,
-#         'customerEmail':order.email,
-#         'customerMobile':order.mobile,
-#         'shipmentAddress':order.address,
-#         'orderStatus':order.status,
+@login_required(login_url='customerlogin')
+@user_passes_test(is_customer)
+def download_invoice_view(request,orderID,productID):
+    order=models.Orders.objects.get(id=orderID)
+    product=models.Product.objects.get(id=productID)
+    mydict={
+        'orderDate':order.order_date,
+        'customerName':request.user,
+        'customerEmail':order.email,
+        'customerMobile':order.mobile,
+        'shipmentAddress':order.address,
+        'orderStatus':order.status,
 
-#         'productName':product.name,
-#         'productImage':product.product_image,
-#         'productPrice':product.price,
-#         'productDescription':product.description,
+        'productName':product.name,
+        'productImage':product.product_image,
+        'productPrice':product.price,
+        'productDescription':product.description,
 
 
-#     }
-#     return render_to_pdf('app/download_invoice.html',mydict)
+    }
+    return render_to_pdf('app/download_invoice.html',mydict)
 
 
 
