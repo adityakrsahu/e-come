@@ -337,8 +337,6 @@ def customer_home_view(request):
         product_count_in_cart=0
     return render(request,'app/customer_home.html',{'products':products,'product_count_in_cart':product_count_in_cart})
 
-
-
 # shipment address before placing order
 @login_required(login_url='customerlogin')
 def customer_address_view(request):
@@ -451,43 +449,43 @@ def my_order_view(request):
 
 
 #--------------for discharge patient bill (pdf) download and printing
-import io
-from xhtml2pdf import pisa
-from django.template.loader import get_template
-from django.template import Context
-from django.http import HttpResponse
+# import io
+# from xhtml2pdf import pisa
+# from django.template.loader import get_template
+# from django.template import Context
+# from django.http import HttpResponse
 
 
-def render_to_pdf(template_src, context_dict):
-    template = get_template(template_src)
-    html  = template.render(context_dict)
-    result = io.BytesIO()
-    pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-1")), result)
-    if not pdf.err:
-        return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return
+# def render_to_pdf(template_src, context_dict):
+#     template = get_template(template_src)
+#     html  = template.render(context_dict)
+#     result = io.BytesIO()
+#     pdf = pisa.pisaDocument(io.BytesIO(html.encode("ISO-8859-1")), result)
+#     if not pdf.err:
+#         return HttpResponse(result.getvalue(), content_type='application/pdf')
+#     return
 
-@login_required(login_url='customerlogin')
-@user_passes_test(is_customer)
-def download_invoice_view(request,orderID,productID):
-    order=models.Orders.objects.get(id=orderID)
-    product=models.Product.objects.get(id=productID)
-    mydict={
-        'orderDate':order.order_date,
-        'customerName':request.user,
-        'customerEmail':order.email,
-        'customerMobile':order.mobile,
-        'shipmentAddress':order.address,
-        'orderStatus':order.status,
+# @login_required(login_url='customerlogin')
+# @user_passes_test(is_customer)
+# def download_invoice_view(request,orderID,productID):
+#     order=models.Orders.objects.get(id=orderID)
+#     product=models.Product.objects.get(id=productID)
+#     mydict={
+#         'orderDate':order.order_date,
+#         'customerName':request.user,
+#         'customerEmail':order.email,
+#         'customerMobile':order.mobile,
+#         'shipmentAddress':order.address,
+#         'orderStatus':order.status,
 
-        'productName':product.name,
-        'productImage':product.product_image,
-        'productPrice':product.price,
-        'productDescription':product.description,
+#         'productName':product.name,
+#         'productImage':product.product_image,
+#         'productPrice':product.price,
+#         'productDescription':product.description,
 
 
-    }
-    return render_to_pdf('app/download_invoice.html',mydict)
+#     }
+#     return render_to_pdf('app/download_invoice.html',mydict)
 
 
 
