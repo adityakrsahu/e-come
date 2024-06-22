@@ -18,8 +18,6 @@ def home_view(request):
     if request.user.is_authenticated:
         return HttpResponseRedirect('afterlogin')
     return render(request,'app/index.html',{'products':products,'product_count_in_cart':product_count_in_cart})
-    
-
 
 #for showing login button for admin(by sumit)
 def adminclick_view(request):
@@ -128,7 +126,6 @@ def update_customer_view(request,pk):
 def admin_products_view(request):
     products=models.Product.objects.all()
     return render(request,'app/admin_products.html',{'products':products})
-
 
 # admin add product by clicking on floating button
 @login_required(login_url='adminlogin')
@@ -393,45 +390,45 @@ def customer_address_view(request):
 # here we are just directing to this view...actually we have to check whther payment is successful or not
 #then only this view should be accessed
 @login_required(login_url='customerlogin')
-# def payment_success_view(request):
-#     # Here we will place order | after successful payment
-#     # we will fetch customer  mobile, address, Email
-#     # we will fetch product id from cookies then respective details from db
-#     # then we will create order objects and store in db
-#     # after that we will delete cookies because after order placed...cart should be empty
-#     customer=models.Customer.objects.get(user_id=request.user.id)
-#     products=None
-#     email=None
-#     mobile=None
-#     address=None
-#     if 'product_ids' in request.COOKIES:
-#         product_ids = request.COOKIES['product_ids']
-#         if product_ids != "":
-#             product_id_in_cart=product_ids.split('|')
-#             products=models.Product.objects.all().filter(id__in = product_id_in_cart)
-#             # Here we get products list that will be ordered by one customer at a time
+def payment_success_view(request):
+    # Here we will place order | after successful payment
+    # we will fetch customer  mobile, address, Email
+    # we will fetch product id from cookies then respective details from db
+    # then we will create order objects and store in db
+    # after that we will delete cookies because after order placed...cart should be empty
+    customer=models.Customer.objects.get(user_id=request.user.id)
+    products=None
+    email=None
+    mobile=None
+    address=None
+    if 'product_ids' in request.COOKIES:
+        product_ids = request.COOKIES['product_ids']
+        if product_ids != "":
+            product_id_in_cart=product_ids.split('|')
+            products=models.Product.objects.all().filter(id__in = product_id_in_cart)
+            # Here we get products list that will be ordered by one customer at a time
 
-#     # these things can be change so accessing at the time of order...
-#     if 'email' in request.COOKIES:
-#         email=request.COOKIES['email']
-#     if 'mobile' in request.COOKIES:
-#         mobile=request.COOKIES['mobile']
-#     if 'address' in request.COOKIES:
-#         address=request.COOKIES['address']
+    # these things can be change so accessing at the time of order...
+    if 'email' in request.COOKIES:
+        email=request.COOKIES['email']
+    if 'mobile' in request.COOKIES:
+        mobile=request.COOKIES['mobile']
+    if 'address' in request.COOKIES:
+        address=request.COOKIES['address']
 
-#     # here we are placing number of orders as much there is a products
-#     # suppose if we have 5 items in cart and we place order....so 5 rows will be created in orders table
-#     # there will be lot of redundant data in orders table...but its bappe more complicated if we normalize it
-#     for product in products:
-#         models.Orders.objects.get_or_create(customer=customer,product=product,status='Pending',email=email,mobile=mobile,address=address)
+    # here we are placing number of orders as much there is a products
+    # suppose if we have 5 items in cart and we place order....so 5 rows will be created in orders table
+    # there will be lot of redundant data in orders table...but its bappe more complicated if we normalize it
+    for product in products:
+        models.Orders.objects.get_or_create(customer=customer,product=product,status='Pending',email=email,mobile=mobile,address=address)
 
-#     # after order placed cookies should be deleted
-#     response = render(request,'app/payment_success.html')
-#     response.delete_cookie('product_ids')
-#     response.delete_cookie('email')
-#     response.delete_cookie('mobile')
-#     response.delete_cookie('address')
-#     return response
+    # after order placed cookies should be deleted
+    response = render(request,'app/payment_success.html')
+    response.delete_cookie('product_ids')
+    response.delete_cookie('email')
+    response.delete_cookie('mobile')
+    response.delete_cookie('address')
+    return response
 
 
 
